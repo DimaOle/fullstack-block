@@ -1,0 +1,101 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  //url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String       @id @default(uuid())
+  firstName String?      @map("first_name")
+  lastName  String?      @map("last_name")
+  email     String       @unique
+  role      RoleEnum[]
+  provider  ProviderEnum
+  password  String?
+  song      Song[]
+  token     Token[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updateAt  DateTime @updatedAt @map("update_at")
+  reviews   Review[]
+
+  @@map("users")
+}
+
+model Song {
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String
+  rating     Decimal? @default(0) @db.Decimal(10, 1)
+  reviews    Review[]
+  author     User     @relation(fields: [userId], references: [id])
+  tags       Tag[]
+  authorSong String   @map("author_song")
+  userId     String   @map("user_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updateAt  DateTime @updatedAt @map("update_at")
+
+  @@map("songs")
+}
+
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  songs Song[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updateAt  DateTime @updatedAt @map("update_at")
+
+  @@map("tags")
+}
+
+model Token {
+  token     String
+  exp       DateTime
+  userAgent String   @map("user_agent")
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updateAt  DateTime @updatedAt @map("update_at")
+
+  @@unique([userId, userAgent])
+  @@map("tokens")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  song      Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId    Int      @map("song_id")
+  score     Int
+  comment   String?
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updateAt  DateTime @default(now()) @updatedAt @map("update_at")
+
+  @@unique([userId, songId])
+  @@map("reviews")
+}
+
+enum RoleEnum {
+  GUEST
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+enum ProviderEnum {
+  LOCAL
+  GOOGLE
+  GITHUB
+}
