@@ -4,17 +4,14 @@ import {
   Delete,
   Get,
   Headers,
-  Param,
-  ParseUUIDPipe,
   Post,
-  Query,
   Req,
   Res,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public } from 'src/libs/common/src/decorators';
+import { Public, UserFromReq } from 'src/libs/common/src/decorators';
 import {
   LoginInDto,
   ProviderModeDTO,
@@ -61,11 +58,11 @@ export class AuthController {
     return this.authService.refreshToken(res, userAgent, dto.userId, refreshToken);
   }
 
-  @Delete('logOut/:id')
+  @Delete('logOut/')
   logOut(
-    @Param('id', new ParseUUIDPipe()) userId: string,
     @Res({ passthrough: true }) res: Response,
     @Headers('user-agent') userAgent: string,
+    @UserFromReq('userId') userId: string,
   ) {
     return this.authService.logOut(userId, res, userAgent);
   }
