@@ -7,19 +7,19 @@ export default function LoginModal({ onClose, onSuccess }: { onClose: () => void
 
   const handleLogin = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/auth/login`, {
+      const response = await fetch(`http://localhost:3000/api/auth/login-local`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-
+      const data = await response.json()
+      console.log(data)
       if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('token', data.accessToken);
+        localStorage.setItem('token', data.access_token.split(' ')[1]);
         onSuccess();
         onClose();
       } else {
-        alert('Ошибка входа');
+        alert(data.message);
       }
     } catch (error) {
       console.error(error);
