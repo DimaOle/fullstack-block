@@ -30,6 +30,7 @@ export class AuthService {
     private cookieService: CookieService,
   ) {}
   async registerLocal(dto: RegisterLocalUserDto): Promise<CreateUser> {
+    const { repeatPassword, ...data } = dto;
     const findUser = await this.userService.getUserByEmail(dto.email);
 
     if (findUser) {
@@ -39,7 +40,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const craeteUser = await this.prisma.user.create({
       data: {
-        ...dto,
+        ...data,
         password: hashedPassword,
         provider: 'LOCAL',
         role: ['USER'],
