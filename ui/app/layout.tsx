@@ -1,9 +1,10 @@
-"use client"; // Добавляем, чтобы работали хуки и события кнопок
+"use client";
 
 import { useState, useEffect } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
-import Header from "./components/Header"; // Импортируй свой Header
-import LoginModal from "./components/LoginModal"; // И модалку
+import Header from "./components/Header";
+import LoginModal from "./components/LoginModal";
+import SignUpModal from "./components/SignUpModal";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,44 +24,41 @@ export default function RootLayout({
 }>) {
   const [isAuth, setIsAuth] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
 
-  // Проверяем токен при загрузке
+  // Проверяем токен при загрузке страницы
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) setIsAuth(true);
   }, []);
 
-  // Тот самый Logout с запросом на бэк
-const handleLogout = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch("http://localhost:3000/api/auth/logOut", {
-      method: "DELETE",
-      credentials: "include",
-      headers: {
-        "Authorization": `Bearer ${token}`, 
-        "Content-Type": "application/json"
-  }
-    });
+  // Логика выхода
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      // Убедись, что путь /api/auth/logOut совпадает с твоим контроллером в NestJS
+      const response = await fetch("http://localhost:3000/api/auth/logOut", {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          "Authorization": `Bearer ${token}`, 
+          "Content-Type": "application/json"
+        }
+      });
 
-    if (response.ok) {
-      // Если бэк ответил 200-299 OK
-      localStorage.removeItem("token");
-      setIsAuth(false);
-      // Можно просто сбросить стейт или перезагрузить
-      window.location.href = "/"; 
-    } else {
-      // Если бэк вернул ошибку (например, 401 или 500)
-      const errorData = await response.json();
-      console.log
-      alert(`Ошибка выхода: ${errorData.message || 'Что-то пошло не так'}`);
+      if (response.ok) {
+        localStorage.removeItem("token");
+        setIsAuth(false);
+        window.location.href = "/"; 
+      } else {
+        const errorData = await response.json();
+        alert(`Ошибка выхода: ${errorData.message || 'Что-то пошло не так'}`);
+      }
+    } catch (error) {
+      console.error("Network error:", error);
+      alert("Не удалось связаться с сервером.");
     }
-  } catch (error) {
-    // Если сервер вообще недоступен (Network Error)
-    console.error("Network error:", error);
-    alert("Не удалось связаться с сервером. Попробуйте позже.");
-  }
-};
+  };
 
   return (
     <html lang="en">
@@ -68,12 +66,20 @@ const handleLogout = async () => {
         <Header 
           isAuth={isAuth} 
           onOpenLogin={() => setIsLoginOpen(true)} 
+          onOpenSignUp={() => setIsSignUpOpen(true)} // Теперь передается правильно
           onLogout={handleLogout} 
         />
         
         {isLoginOpen && (
           <LoginModal 
             onClose={() => setIsLoginOpen(false)} 
+            onSuccess={() => setIsAuth(true)} 
+          />
+        )}
+
+        {isSignUpOpen && (
+          <SignUpModal 
+            onClose={() => setIsSignUpOpen(false)} 
             onSuccess={() => setIsAuth(true)} 
           />
         )}
