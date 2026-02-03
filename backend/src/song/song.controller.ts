@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { Roles } from 'src/libs/common/src/decorators';
+import { Public, Roles } from 'src/libs/common/src/decorators';
 import { OwnerOrAdminGuard, RolesGuard } from 'src/libs/common/src/guards';
 import { AddSongDTO, FindSongQueryDto, UpdateSongDTO } from './dto';
 import { SongService } from './song.service';
@@ -19,6 +19,7 @@ import { SongFindsParamKeys } from './common/types';
 @Controller('song')
 export class SongController {
   constructor(private readonly SongService: SongService) {}
+  @Public()
   @Get('getAll')
   getAll() {
     return this.SongService.getAllSongs();

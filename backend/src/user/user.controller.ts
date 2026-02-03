@@ -10,9 +10,10 @@ import {
   Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { EmailParamDto, UpdateUserDTO } from './dto';
+import { EmailParamDto, UserUpdateChangePassword, UserUpdateDto } from './dto';
 import { Response } from 'express';
 import { RequestWithUser } from './interfaces';
+import { UserFromReq } from 'src/libs/common/src/decorators';
 
 @Controller('user')
 export class UserController {
@@ -31,10 +32,19 @@ export class UserController {
   findUserById(@Param('id', new ParseUUIDPipe()) userId: string) {
     return this.userSevice.getUserById(userId);
   }
+  @Get('myProfile')
+  findOwnerProfile(@UserFromReq('userId') userId: string) {
+    return this.userSevice.findOwnerProfile(userId);
+  }
 
-  @Patch('update/:id')
-  update(@Param('id', new ParseUUIDPipe()) userId: string, @Body() dto: UpdateUserDTO) {
+  @Patch('myProfile')
+  update(@UserFromReq('userId') userId: string, @Body() dto: UserUpdateDto) {
     return this.userSevice.updateUser(userId, dto);
+  }
+
+  @Patch('changePass')
+  updatePass(@UserFromReq('userId') userId: string, @Body() dto: UserUpdateChangePassword) {
+    return this.userSevice.cahngePasswordUser(userId, dto);
   }
 
   @Delete('delete/:email')

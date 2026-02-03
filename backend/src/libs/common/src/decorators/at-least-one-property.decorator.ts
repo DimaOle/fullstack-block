@@ -8,6 +8,7 @@ import {
 @ValidatorConstraint({ name: 'atLeastOneProperty', async: false })
 export class AtLeastOnePropertyConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: any) {
+    console.log(args);
     const object = args.object;
     return Object.keys(object).some((key) => object[key] !== undefined && object[key] !== null);
   }

@@ -1,17 +1,21 @@
 import {
-  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RequestWithUser } from './interfaces';
+import { MyProfileResponse, RequestWithUser } from './interfaces';
 import { CreateUser } from 'src/auth/interfaces';
-import { UpdateUserDTO } from './dto';
 import * as bcrypt from 'bcrypt';
+import { UserUpdateChangePassword, UserUpdateDto } from './dto';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configServise: ConfigService,
+  ) {}
 
   async getUserByEmail(email: string): Promise<CreateUser | null> {
     try {
@@ -40,30 +44,24 @@ export class UserService {
   }
 
   async deleteUser(req: RequestWithUser, email: string) {
-    const emailJwt = req.user.email;
+    const emailJwt = req.user.user;
     if (emailJwt === email) {
-      const userDelete = await this.prisma.user.deleteMany();
+      const userDelete = await this.prisma.user.deleteMany({ where: { email: email } });
+      console.log(userDelete);
     }
     return true;
   }
 
-  async updateUser(userId, dto: UpdateUserDTO) {
+  async updateUser(userId: string, dto: UserUpdateDto) {
     try {
       const user = await this.prisma.user.findFirst({ where: { id: userId } });
       if (!user) {
         throw new NotFoundException(`User by ${userId} dont found`);
       }
 
-      if (dto.password !== dto.repeatPassword) {
-        throw new BadRequestException('Passwords do not match');
-      }
-      const { repeatPassword, ...data } = dto;
-      if (data.password) {
-        data.password = await bcrypt.hash(data.password, 10);
-      }
       return this.prisma.user.update({
         where: { id: userId },
-        data,
+        data: dto,
         select: {
           id: true,
           email: true,
@@ -76,5 +74,29 @@ export class UserService {
     } catch (e) {
       throw e;
     }
+  }
+
+  async cahngePasswordUser(userId: string, dto: UserUpdateChangePassword) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`User by ${userId} dont found`);
+    }
+    const matchPass = await bcrypt.compare(dto.password, user.password);
+    const password = this.configServise.getOrThrow<string>('PASS_FOR_REGISTER_PROVIDER');
+    const matchPassProviders = await bcrypt.compare(password, user.password);
+
+    if (!matchPass && !matchPassProviders) {
+      throw new UnauthorizedException('password incorect');
+    }
+
+    const hashPass = await bcrypt.hash(dto.newPassword, 10);
+    return this.prisma.user.update({ where: { id: userId }, data: { password: hashPass } });
+  }
+
+  findOwnerProfile(userId: string): Promise<MyProfileResponse> {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { firstName: true, lastName: true, email: true, role: true },
+    });
   }
 }

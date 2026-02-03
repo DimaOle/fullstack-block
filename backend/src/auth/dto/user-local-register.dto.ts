@@ -8,14 +8,14 @@ export class RegisterLocalUserDto {
   email: string;
 
   @IsNotEmpty()
-  @Length(6, 12)
+  @Length(6, 30)
   @Matches(/^(?=.*[A-Za-z])(?=.*\d).+$/, {
     message: 'Password must contain at least one letter and one number',
   })
   password: string;
 
   @IsNotEmpty()
-  @Length(6, 12)
+  @Length(6, 30)
   @Matches(/^(?=.*[A-Za-z])(?=.*\d).+$/, {
     message: 'Password must contain at least one letter and one number',
   })
