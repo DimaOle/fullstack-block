@@ -18,7 +18,7 @@ import { CookieService } from './cookie.service';
 import { Response } from 'express';
 import { ProviderEnum, RoleEnum } from '@prisma/client';
 import { ProviderMode } from './enums';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 const ms = require('ms');
 @Injectable()
 export class AuthService {
@@ -68,7 +68,7 @@ export class AuthService {
     let user = await this.prisma.user.findFirst({ where: { email: dto.email } });
 
     if (!user) {
-      const password = 'registrationByProvider';
+      const password = this.configServise.getOrThrow<string>('PASS_FOR_REGISTER_PROVIDER');
       const hashedPassword = await bcrypt.hash(password, 10);
       const { mode, ...dataToSave } = dto;
       user = await this.prisma.user.create({
