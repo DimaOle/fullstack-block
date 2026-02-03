@@ -9,19 +9,20 @@ function AuthHandler() {
 
   useEffect(() => {
     const token = searchParams.get('token');
+    console.log(1)
     if (token) {
       localStorage.setItem('token', token);
       // Маленькая задержка, чтобы браузер успел записать данные
       setTimeout(() => {
         router.push('/');
-      }, 100);
+      }, 0);
     }
   }, [searchParams, router]);
 
   return (
     <div className="text-center p-8 bg-white rounded-2xl shadow-xl">
-      <h1 className="text-2xl font-bold mb-2">Авторизация...</h1>
-      <p className="text-gray-500">Загружаем ваш профиль</p>
+      <h1 className="text-2xl font-bold mb-2">Authorization...</h1>
+      <p className="text-gray-500">Uploading your profile</p>
     </div>
   );
 }

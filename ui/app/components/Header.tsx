@@ -1,4 +1,5 @@
 "use client";
+import Link from 'next/link';
 
 // Оставляем только ОДИН интерфейс
 interface HeaderProps {
@@ -19,9 +20,9 @@ export default function Header({ isAuth, onOpenLogin, onOpenSignUp, onLogout }: 
       <div className="flex items-center gap-4">
         {isAuth ? (
           <>
-            <button className="text-sm font-semibold px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors">
-              Profile
-            </button>
+<Link href="/profile" className="font-bold text-gray-700 hover:text-blue-600 transition-colors">
+  Profile
+</Link>
             <button 
               onClick={onLogout} 
               className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors"

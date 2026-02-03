@@ -22,10 +22,10 @@ export default function SignUpModal({ onClose, onSuccess }: SignUpModalProps) {
     setError("");
 
     // Простая проверка на фронте перед отправкой
-    if (formData.password !== formData.repeatPassword) {
-      setError("Passwords do not match");
-      return;
-    }
+    // if (formData.password !== formData.repeatPassword) {
+    //   setError("Passwords do not match");
+    //   return;
+    // }
 
     try {
       const response = await fetch("http://localhost:3000/api/auth/register", {

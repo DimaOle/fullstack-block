@@ -29,6 +29,7 @@ export default function RootLayout({
   // Проверяем токен при загрузке страницы
   useEffect(() => {
     const token = localStorage.getItem("token");
+    console.log(token)
     if (token) setIsAuth(true);
   }, []);
 
