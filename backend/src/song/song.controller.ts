@@ -25,8 +25,6 @@ export class SongController {
     return this.SongService.getAllSongs();
   }
 
-  @Roles(['ADMIN'])
-  @UseGuards(RolesGuard)
   @Post('add')
   add(@Body() dto: AddSongDTO) {
     return this.SongService.addSong(dto);

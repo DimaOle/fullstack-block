@@ -47,8 +47,8 @@ export class UserController {
     return this.userSevice.cahngePasswordUser(userId, dto);
   }
 
-  @Delete('delete/:email')
-  deleteUser(@Param('email') email: string, @Req() req: RequestWithUser) {
-    return this.userSevice.deleteUser(req, email);
+  @Delete('myProfile')
+  deleteUser(@UserFromReq('user') email: string) {
+    return this.userSevice.deleteUser(email);
   }
 }

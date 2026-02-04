@@ -36,7 +36,7 @@ model Song {
   content    String
   rating     Decimal? @default(0) @db.Decimal(10, 1)
   reviews    Review[]
-  author     User     @relation(fields: [userId], references: [id])
+  author     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   tags       Tag[]
   authorSong String   @map("author_song")
   userId     String   @map("user_id")

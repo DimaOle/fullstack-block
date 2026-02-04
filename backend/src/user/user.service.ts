@@ -43,12 +43,9 @@ export class UserService {
     }
   }
 
-  async deleteUser(req: RequestWithUser, email: string) {
-    const emailJwt = req.user.user;
-    if (emailJwt === email) {
-      const userDelete = await this.prisma.user.deleteMany({ where: { email: email } });
-      console.log(userDelete);
-    }
+  async deleteUser(email: string) {
+    const userDelete = await this.prisma.user.deleteMany({ where: { email: email } });
+    console.log(userDelete);
     return true;
   }
 
@@ -96,7 +93,7 @@ export class UserService {
   findOwnerProfile(userId: string): Promise<MyProfileResponse> {
     return this.prisma.user.findUnique({
       where: { id: userId },
-      select: { firstName: true, lastName: true, email: true, role: true },
+      select: { firstName: true, lastName: true, email: true, role: true, id: true },
     });
   }
 }
